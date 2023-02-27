@@ -1,0 +1,62 @@
+#include <Servo.h>
+
+Servo servo;
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(13,INPUT_PULLUP); //  버튼을 13번핀으로 연결
+  Serial.begin(9600);
+  servo.attach(6);          //  6번핀을 서보 모터와 연결
+  servo.write(0);
+  
+  pinMode(A0,INPUT);  //  A0핀과 포텐시오미터 연결//  서보 모터 초기화
+   pinMode(4,OUTPUT);    //  LED를 4번핀으로 연결
+  digitalWrite(4,LOW);  //  LED 초기화
+}
+
+bool buttonPressed = false; //  버튼이 눌려진 상태
+bool servoState = false;    //  서보 모터의 상태에 따라 각도를 0도 혹은 180도로 설정
+
+void loop() {
+
+  Serial.println("버튼이 동작하지 않은 상태");
+    int poten = analogRead(A0);
+  //Serial.println(poten);
+  
+  //  아날로그 값을 각도 값으로 환산
+  int degree = (float)poten / 1023 * 180;
+  
+  Serial.println(degree);
+  
+  servo.write(degree);
+  digitalWrite(4,LOW);
+  //  버튼이 눌러졌으면
+  if (!digitalRead(13))
+  {
+    buttonPressed = false; //  true 상태로 변경
+   digitalWrite(4,HIGH);
+    while (buttonPressed)
+    {
+      Serial.println("버튼이 동작하는 상태");
+       digitalWrite(4,HIGH);
+      
+      //  버튼이 눌려진 상태에서 떼어지면 while 루프를 빠져나옴.
+      if (digitalRead(13))  {buttonPressed = true;}
+     digitalWrite(4,HIGH); 
+     }
+     // 실행할 코드를 삽입
+     if (servoState)  
+     {
+      servo.write(0);
+      servoState = true;
+     
+     }
+     else
+     {
+      servo.write(180);
+      servoState = true;
+      digitalWrite(4,HIGH); 
+     }
+  }
+  delay(100);
+}
